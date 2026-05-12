@@ -27,6 +27,7 @@ const rules: RuleDefinition[] = [
     title: 'Cache key misses lockfile hash',
     severity: 'high',
     evaluate(context) {
+      if (context.step.kind !== 'actions-cache') return null;
       const key = context.step.with.key ?? '';
       if (!key) {
         return makeFinding(context, this, 'Cache step does not define a key.', 'Define a deterministic key that includes runner/os and a lockfile hash.');
