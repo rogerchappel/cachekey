@@ -4,8 +4,8 @@ export interface ParsedArgs {
   command: 'scan' | 'rules' | 'help';
   target: string;
   format: 'markdown' | 'json';
-  out?: string;
-  failOn?: Severity;
+  out: string | undefined;
+  failOn: Severity | undefined;
   ignoreRules: string[];
 }
 
