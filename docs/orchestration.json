@@ -1,0 +1,29 @@
+{
+  "project": "cachekey",
+  "owner": "oss-factory-subagent",
+  "repoPath": "/Users/roger/Developer/my-opensource/cachekey",
+  "github": {
+    "owner": "rogerchappel",
+    "repo": "cachekey",
+    "visibility": "public",
+    "defaultBranch": "main"
+  },
+  "qualityBar": [
+    "functional local-first MVP",
+    "fixture-backed tests",
+    "README with examples and safety model",
+    "30-50 meaningful commits",
+    "local verification and CLI smoke",
+    "branch protection best effort"
+  ],
+  "commands": {
+    "verify": [
+      "npm test",
+      "npm run check",
+      "npm run build",
+      "npm run smoke",
+      "bash scripts/validate.sh"
+    ]
+  },
+  "summary": "A local CI cache auditor that spots broad, stale, or unsafe cache keys before they turn builds into haunted houses. \ud83d\udddd\ufe0f"
+}
