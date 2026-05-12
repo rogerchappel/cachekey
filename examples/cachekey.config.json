@@ -1,0 +1,5 @@
+{
+  "ignoreRules": ["broad-restore-key"],
+  "lockfilePatterns": ["package-lock.json", "pnpm-lock.yaml", "Cargo.lock"],
+  "ignorePaths": ["fixtures/generated"]
+}
