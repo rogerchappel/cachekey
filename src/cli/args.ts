@@ -13,6 +13,16 @@ const severities = new Set<Severity>(['low', 'medium', 'high']);
 
 export function parseArgs(argv: string[]): ParsedArgs {
   const args = [...argv];
+  // Treat --help or -h as the help command regardless of position
+  if (args.includes('--help') || args.includes('-h')) {
+    return { command: 'help', target: '.github/workflows', format: 'markdown', out: undefined, failOn: undefined, ignoreRules: [] };
+  }
+
+  // No command provided: show help (not an error)
+  if (args.length === 0) {
+    return { command: 'help', target: '.github/workflows', format: 'markdown', out: undefined, failOn: undefined, ignoreRules: [] };
+  }
+
   const command = (args.shift() as ParsedArgs['command'] | undefined) ?? 'help';
 
   if (!['scan', 'rules', 'help'].includes(command)) {
@@ -66,5 +76,26 @@ export function parseArgs(argv: string[]): ParsedArgs {
 }
 
 export function helpText(): string {
-  return `cachekey\n\nUsage:\n  cachekey scan [target] [--format markdown|json] [--out FILE] [--fail-on low|medium|high] [--ignore-rule RULE]\n  cachekey rules\n`;
+  return `cachekey 0.1.0
+
+Local-first CI cache auditor for GitHub Actions workflows.
+
+Usage:
+  cachekey scan [target] [--format markdown|json] [--out FILE] [--fail-on low|medium|high] [--ignore-rule RULE]
+  cachekey rules
+
+Examples:
+  cachekey scan .github/workflows --out cache-report.md
+  cachekey scan fixtures/risky/.github/workflows --format json --fail-on medium
+  cachekey rules
+
+Flags:
+  -h, --help        Show this help text
+  --format          Output format (markdown|json)
+  --out             Write report to file
+  --fail-on         Exit 1 when findings reach severity threshold
+  --ignore-rule     Skip a rule by id
+
+Safety:
+  Scans workflow YAML and nearby lockfiles entirely offline.`;
 }
