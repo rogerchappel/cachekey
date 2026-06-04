@@ -1,7 +1,7 @@
 import type { Severity } from '../types.js';
 
 export interface ParsedArgs {
-  command: 'scan' | 'rules' | 'help';
+  command: 'scan' | 'rules' | 'help' | 'version';
   target: string;
   format: 'markdown' | 'json';
   out: string | undefined;
@@ -13,6 +13,11 @@ const severities = new Set<Severity>(['low', 'medium', 'high']);
 
 export function parseArgs(argv: string[]): ParsedArgs {
   const args = [...argv];
+  // Treat --version as the version command regardless of position
+  if (args.includes('--version')) {
+    return { command: 'version', target: '.' as any, format: 'markdown', out: undefined, failOn: undefined, ignoreRules: [] };
+  }
+
   // Treat --help or -h as the help command regardless of position
   if (args.includes('--help') || args.includes('-h')) {
     return { command: 'help', target: '.github/workflows', format: 'markdown', out: undefined, failOn: undefined, ignoreRules: [] };
