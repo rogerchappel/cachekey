@@ -1,4 +1,8 @@
+import { createRequire } from 'node:module';
 import type { Severity } from '../types.js';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../../package.json') as { version: string };
 
 export interface ParsedArgs {
   command: 'scan' | 'rules' | 'help' | 'version';
@@ -30,7 +34,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
 
   const command = (args.shift() as ParsedArgs['command'] | undefined) ?? 'help';
 
-  if (!['scan', 'rules', 'help'].includes(command)) {
+  if (!['scan', 'rules', 'help', 'version'].includes(command)) {
     throw new Error(`Unknown command: ${command}`);
   }
 
@@ -81,21 +85,24 @@ export function parseArgs(argv: string[]): ParsedArgs {
 }
 
 export function helpText(): string {
-  return `cachekey 0.1.0
+  return `cachekey ${pkg.version}
 
 Local-first CI cache auditor for GitHub Actions workflows.
 
 Usage:
   cachekey scan [target] [--format markdown|json] [--out FILE] [--fail-on low|medium|high] [--ignore-rule RULE]
   cachekey rules
+  cachekey version
 
 Examples:
   cachekey scan .github/workflows --out cache-report.md
   cachekey scan fixtures/risky/.github/workflows --format json --fail-on medium
   cachekey rules
+  cachekey --version
 
 Flags:
   -h, --help        Show this help text
+  --version         Print the package version
   --format          Output format (markdown|json)
   --out             Write report to file
   --fail-on         Exit 1 when findings reach severity threshold

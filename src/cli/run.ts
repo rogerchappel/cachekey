@@ -1,10 +1,14 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { parseArgs, helpText } from './args.js';
 import { scanTarget, shouldFail } from '../core/scanner.js';
 import { renderMarkdown } from '../reporters/markdown.js';
 import { renderJson } from '../reporters/json.js';
 import { listRules } from '../core/rules.js';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../../package.json') as { version: string };
 
 export function run(argv: string[], cwd = process.cwd()): { exitCode: number; stdout: string; stderr: string } {
   try {
@@ -15,7 +19,7 @@ export function run(argv: string[], cwd = process.cwd()): { exitCode: number; st
     }
 
     if (parsed.command === 'version') {
-      return { exitCode: 0, stdout: '0.1.0\n', stderr: '' };
+      return { exitCode: 0, stdout: `${pkg.version}\n`, stderr: '' };
     }
 
     if (parsed.command === 'rules') {
