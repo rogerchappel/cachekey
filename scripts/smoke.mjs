@@ -10,6 +10,7 @@ mkdirSync(outDir, { recursive: true });
 const markdownReport = path.join(outDir, 'risky.md');
 const jsonReport = path.join(outDir, 'safe.json');
 
+execFileSync('node', ['dist/cli.js', '--version'], { cwd: repoRoot, stdio: 'inherit' });
 execFileSync('node', ['dist/cli.js', 'scan', 'fixtures/risky/.github/workflows', '--out', markdownReport], { cwd: repoRoot, stdio: 'inherit' });
 execFileSync('node', ['dist/cli.js', 'scan', 'fixtures/safe/.github/workflows', '--format', 'json', '--out', jsonReport], { cwd: repoRoot, stdio: 'inherit' });
 writeFileSync(path.join(outDir, 'README.txt'), 'Smoke run completed.\n', 'utf8');
