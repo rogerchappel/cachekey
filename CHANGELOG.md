@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- CLI version output now follows package metadata instead of a hard-coded
+  literal.
+- Smoke and package verification execute the built CLI version path.
+
 ## 0.1.0
 
 - initial CacheKey MVP release

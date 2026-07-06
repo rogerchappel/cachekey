@@ -33,6 +33,7 @@ node dist/cli.js scan .github/workflows
 cachekey scan .github/workflows --out cache-report.md
 cachekey scan fixtures/risky/.github/workflows --format json --fail-on medium
 cachekey rules
+cachekey --version
 ```
 
 ## What it checks in v0.1
@@ -104,6 +105,7 @@ It only reads local files and writes reports where you ask it to.
 npm run build
 node dist/cli.js scan fixtures/risky/.github/workflows --out tmp/risky-report.md
 node dist/cli.js scan fixtures/safe/.github/workflows --format json --out tmp/safe-report.json
+node dist/cli.js --version
 ```
 
 For a repeatable walkthrough that creates both reports and verifies them:
