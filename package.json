@@ -16,6 +16,8 @@
   },
   "files": [
     "dist",
+    "docs",
+    "examples",
     "README.md",
     "LICENSE",
     "SECURITY.md",
@@ -32,7 +34,7 @@
     "lint": "tsc --noEmit -p tsconfig.json",
     "test": "node --test --import tsx",
     "smoke": "node scripts/smoke.mjs",
-    "package:smoke": "npm run build && npm pack --dry-run",
+    "package:smoke": "npm run build && node scripts/verify-package.mjs && npm pack --dry-run",
     "release:check": "npm run check && npm run build && npm run smoke && npm run package:smoke"
   },
   "keywords": [
