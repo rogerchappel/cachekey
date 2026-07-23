@@ -1,0 +1,22 @@
+name: action semantics
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ACTIONS/SETUP-NODE@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: .npmrc
+      - uses: example/setup-node-wrapper@v4
+        with:
+          cache: npm
+      - uses: actions/cache-restore@v4
+        with:
+          path: .ssh
+          key: lookalike
+      - uses: Actions/Cache@refs/heads/main
+        with:
+          path: .env
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
