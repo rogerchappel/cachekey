@@ -40,10 +40,13 @@ cachekey --version
 
 - missing `hashFiles(...)` in explicit `actions/cache` keys when lockfiles exist
 - overly broad `restore-keys`
-- dangerous cache paths like `.env`, `.npmrc`, `.ssh`, `secrets`
+- dangerous `actions/cache` payload paths like `.env`, `.npmrc`, `.ssh`, `secrets`
 - mutable build output caches like `dist/`, `build/`, `coverage/`
-- `actions/setup-node` cache usage missing `cache-dependency-path`
+- `actions/setup-node` cache usage missing a `cache-dependency-path` manifest
 
+For `actions/setup-node`, `cache-dependency-path` identifies the lockfile or
+dependency manifest used to calculate the cache key. It is not the directory
+stored in the package-manager cache.
 ## Output
 
 ### Markdown
