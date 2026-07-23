@@ -7,6 +7,12 @@ function stringValue(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined;
 }
 
+function actionIdentity(uses: string): string | undefined {
+  const separator = uses.indexOf('@');
+  if (separator <= 0 || separator === uses.length - 1) return undefined;
+  return uses.slice(0, separator).toLowerCase();
+}
+
 function getLine(raw: string, needle: string): number {
   const index = raw.indexOf(needle);
   if (index === -1) return 1;
@@ -36,12 +42,13 @@ function extractSteps(file: string, raw: string): WorkflowCacheStep[] {
       );
       const snippet = uses ?? JSON.stringify(withRecord);
       const line = getLine(raw, uses ?? Object.values(withRecord)[0] ?? '-');
+      const identity = uses ? actionIdentity(uses) : undefined;
 
-      if (uses?.startsWith('actions/cache')) {
+      if (uses && identity === 'actions/cache') {
         steps.push({ kind: 'actions-cache', uses, with: withRecord, reference: { file, line, snippet } });
       }
 
-      if (uses?.includes('setup-node') && 'cache' in withRecord) {
+      if (uses && identity === 'actions/setup-node' && 'cache' in withRecord) {
         steps.push({ kind: 'setup-cache', uses, with: withRecord, reference: { file, line, snippet } });
       }
     }
