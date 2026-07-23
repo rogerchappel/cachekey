@@ -55,7 +55,8 @@ const rules: RuleDefinition[] = [
     title: 'Dangerous path cached',
     severity: 'high',
     evaluate(context) {
-      const cachePath = context.step.with.path ?? context.step.with['cache-dependency-path'] ?? '';
+      if (context.step.kind !== 'actions-cache') return null;
+      const cachePath = context.step.with.path ?? '';
       if (!cachePath) return null;
       const hit = cachePath.split('\n').map((line) => line.trim()).find((line) => DANGEROUS_PATHS.some((pattern) => pattern.test(line)));
       if (!hit) return null;
@@ -75,13 +76,13 @@ const rules: RuleDefinition[] = [
   },
   {
     id: 'setup-cache-missing-dependency-path',
-    title: 'setup-node cache lacks dependency path',
+    title: 'setup-node cache lacks dependency manifest path',
     severity: 'low',
     evaluate(context) {
       if (context.step.kind !== 'setup-cache') return null;
       const manager = context.step.with.cache;
       if (!manager || context.step.with['cache-dependency-path']) return null;
-      return makeFinding(context, this, `setup-node cache for \`${manager}\` does not set cache-dependency-path.`, 'Set cache-dependency-path so monorepos and non-default lockfile locations are hashed correctly.');
+      return makeFinding(context, this, `setup-node cache for \`${manager}\` does not set cache-dependency-path.`, 'Set cache-dependency-path to the lockfile or dependency manifest that setup-node should hash, especially for monorepos and non-default locations.');
     }
   }
 ];
