@@ -24,3 +24,17 @@ test('scanner detects missing dependency path on setup cache', () => {
   const result = scanTarget({ cwd, target: 'fixtures/stale/.github/workflows', ignoreRules: [] });
   assert.ok(result.findings.some((finding) => finding.id === 'setup-cache-missing-dependency-path'));
 });
+
+test('scanner applies cache rules only to exact official action identities', () => {
+  const result = scanTarget({ cwd, target: 'fixtures/action-semantics/.github/workflows', ignoreRules: [] });
+
+  assert.deepEqual(
+    result.findings.map(({ id, message }) => ({ id, message })),
+    [
+      {
+        id: 'dangerous-cache-path',
+        message: 'Cache path `.env` may include secrets or machine-specific credentials.'
+      }
+    ]
+  );
+});
