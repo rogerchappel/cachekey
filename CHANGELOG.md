@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Scope lockfile evidence to the project containing the scanned workflows and
+  report exact source lines for repeated cache actions.
 - Match cache rules to exact official action identities and distinguish
   `actions/setup-node` dependency manifests from cached payload paths.
 - CLI version output now follows package metadata instead of a hard-coded

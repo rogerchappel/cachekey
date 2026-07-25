@@ -36,6 +36,13 @@ cachekey rules
 cachekey --version
 ```
 
+The scan target may be relative to the current directory or absolute. When it
+points inside a project's `.github` directory, CacheKey discovers lockfiles
+only from the directory containing that `.github` directory. This keeps
+lockfiles from a parent workspace or neighboring fixture from influencing the
+report. Report paths remain relative to the current directory, so an absolute
+external target can produce paths beginning with `../`.
+
 ## What it checks in v0.1
 
 - missing `hashFiles(...)` in explicit `actions/cache` keys when lockfiles exist
@@ -99,7 +106,6 @@ It only reads local files and writes reports where you ask it to.
 
 - V1 is GitHub Actions focused
 - heuristic rule matching means false positives are possible
-- YAML line detection is best-effort, not AST-perfect
 - setup-* cache coverage is intentionally narrow in this first release
 
 ## Real fixture smoke
