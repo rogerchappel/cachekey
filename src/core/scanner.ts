@@ -3,7 +3,7 @@ import { loadConfig } from '../config/load-config.js';
 import { findLockfiles } from './lockfiles.js';
 import { evaluateRules } from './rules.js';
 import { loadWorkflowDocuments } from './workflow-parser.js';
-import { isSubpath } from '../utils/fs.js';
+import { isSubpath, toPosix } from '../utils/fs.js';
 import type { ScanResult, Severity } from '../types.js';
 
 export interface ScanOptions {
@@ -18,6 +18,17 @@ const severityRank: Record<Severity, number> = {
   high: 3
 };
 
+function projectRootForTarget(target: string): string {
+  let current = target;
+  while (path.dirname(current) !== current) {
+    if (path.basename(current) === '.github') {
+      return path.dirname(current);
+    }
+    current = path.dirname(current);
+  }
+  return target;
+}
+
 export function scanTarget(options: ScanOptions): ScanResult {
   const config = loadConfig(options.cwd);
   const mergedConfig = {
@@ -27,7 +38,9 @@ export function scanTarget(options: ScanOptions): ScanResult {
 
   const target = path.resolve(options.cwd, options.target);
   const workflows = loadWorkflowDocuments(options.cwd, target);
-  const lockfiles = findLockfiles(options.cwd, mergedConfig.lockfilePatterns);
+  const projectRoot = projectRootForTarget(target);
+  const lockfiles = findLockfiles(projectRoot, mergedConfig.lockfilePatterns)
+    .map((lockfile) => toPosix(path.relative(options.cwd, path.resolve(projectRoot, lockfile))));
 
   const findings = workflows.flatMap((workflow) =>
     workflow.steps.flatMap((step) =>
