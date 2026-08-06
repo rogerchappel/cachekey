@@ -187,7 +187,9 @@ and prints the dry-run tarball contents for review.
 
 Version tags matching `v*.*.*` run the same checks, pack one tarball, publish
 that exact tarball to npm with provenance, and only then create the GitHub
-release with the tarball attached. Before the first release, configure
+release with the tarball attached. `releasebox.config.json` declares npm
+publishing as part of this contract, and `npm run release:check` fails if that
+metadata drifts from the workflow. Before the first release, configure
 `rogerchappel/cachekey` and the `release.yml` workflow as a trusted publisher
 for the `cachekey` package on npm. Trusted publishing uses GitHub OIDC, so the
 workflow needs no long-lived npm token.
