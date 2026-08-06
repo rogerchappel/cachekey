@@ -4,6 +4,7 @@ import { parse } from 'yaml';
 
 const root = new URL('../', import.meta.url);
 const pkg = JSON.parse(await readFile(new URL('package.json', root), 'utf8'));
+const releasebox = JSON.parse(await readFile(new URL('releasebox.config.json', root), 'utf8'));
 const workflow = parse(await readFile(new URL('.github/workflows/release.yml', root), 'utf8'));
 const steps = workflow.jobs?.release?.steps ?? [];
 
@@ -15,6 +16,9 @@ const verifyIndex = findStep('Verify release contract');
 const publishIndex = findStep('Publish package to npm');
 const releaseIndex = findStep('Create GitHub release');
 
+if (releasebox.release?.publishNpm !== true) {
+  throw new Error('ReleaseBox config must declare npm publishing enabled');
+}
 if (setup?.with?.['registry-url'] !== 'https://registry.npmjs.org') {
   throw new Error('release workflow must use the npmjs registry');
 }
@@ -36,10 +40,19 @@ if (!publish.includes('npm publish') || !publish.includes('npm-pack.json') ||
     !publish.includes('--provenance') || !publish.includes('--access public')) {
   throw new Error('npm publish must publish the recorded tarball publicly with provenance');
 }
+const release = String(steps[releaseIndex].run);
+if (!release.includes('gh release create') || !release.includes('npm-pack.json') ||
+    !release.includes('"$tarball"')) {
+  throw new Error('GitHub release must attach the recorded npm tarball');
+}
 
 const metadataPath = process.argv[2];
 if (metadataPath) {
-  const [packed] = JSON.parse(await readFile(metadataPath, 'utf8'));
+  const packedArtifacts = JSON.parse(await readFile(metadataPath, 'utf8'));
+  if (!Array.isArray(packedArtifacts) || packedArtifacts.length !== 1) {
+    throw new Error('npm pack must record exactly one tarball');
+  }
+  const [packed] = packedArtifacts;
   if (packed?.name !== pkg.name || packed?.version !== pkg.version) {
     throw new Error(`packed identity ${packed?.name}@${packed?.version} does not match ${pkg.name}@${pkg.version}`);
   }
@@ -48,4 +61,4 @@ if (metadataPath) {
   console.log(`verified packed artifact ${packed.filename} as ${pkg.name}@${pkg.version}`);
 }
 
-console.log('verified npm registry, least privilege, provenance, and publish-before-release ordering');
+console.log('verified ReleaseBox npm publishing, least privilege, provenance, and publish-before-release ordering');
