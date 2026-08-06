@@ -36,7 +36,7 @@
     "smoke": "node scripts/smoke.mjs",
     "package:smoke": "npm run build && node scripts/verify-package.mjs && npm pack --dry-run",
     "release:contract": "npm pack --json > npm-pack.json && node scripts/verify-release.mjs npm-pack.json",
-    "release:check": "npm run check && npm run build && npm run smoke && npm run package:smoke"
+    "release:check": "npm run check && npm run build && npm run smoke && npm run package:smoke && node scripts/verify-release.mjs"
   },
   "keywords": [
     "cache",
