@@ -17,7 +17,7 @@ test('scanner finds risky cache issues', () => {
 });
 
 test('scanner accepts safe workflow', () => {
-  const result = scanTarget({ cwd, target: 'fixtures/safe/.github/workflows', ignoreRules: ['broad-restore-key'] });
+  const result = scanTarget({ cwd, target: 'fixtures/safe/.github/workflows', ignoreRules: [] });
   assert.equal(result.findings.length, 0);
   assert.equal(shouldFail(result.findings, 'high'), false);
 });
