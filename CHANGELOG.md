@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Refresh the `tsx` development dependency to resolve its patched `esbuild`
+  release outside the affected advisory range.
 - Scope lockfile evidence to the project containing the scanned workflows and
   report exact source lines for repeated cache actions.
 - Match cache rules to exact official action identities and distinguish
