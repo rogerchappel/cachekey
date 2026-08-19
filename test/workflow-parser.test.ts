@@ -29,3 +29,16 @@ jobs:
 
   assert.deepEqual(workflow.steps.map((step) => step.reference.line), [5, 6, 10, 13]);
 });
+
+test('parser rejects malformed YAML with its workflow path and location', (t) => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'cachekey-parser-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const workflows = path.join(root, '.github', 'workflows');
+  mkdirSync(workflows, { recursive: true });
+  writeFileSync(path.join(workflows, 'broken.yml'), 'jobs:\n  test:\n    steps: [');
+
+  assert.throws(
+    () => loadWorkflowDocuments(root, workflows),
+    /Invalid workflow YAML:\n\.github\/workflows\/broken\.yml:3:\d+: Flow sequence in block collection must be sufficiently indented/
+  );
+});
