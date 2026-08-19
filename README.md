@@ -43,6 +43,10 @@ lockfiles from a parent workspace or neighboring fixture from influencing the
 report. Report paths remain relative to the current directory, so an absolute
 external target can produce paths beginning with `../`.
 
+Malformed workflow YAML is a scan error, never an empty clean report. CacheKey
+names the workflow and parser location on stderr and exits nonzero, even when
+other workflows in the same target are valid.
+
 ## What it checks in v0.1
 
 - missing `hashFiles(...)` in explicit `actions/cache` keys when lockfiles exist
