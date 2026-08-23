@@ -22,6 +22,35 @@ test('scanner accepts safe workflow', () => {
   assert.equal(shouldFail(result.findings, 'high'), false);
 });
 
+test('scanner skips ignored workflow paths before parsing', (t) => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'cachekey-ignore-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  writeCacheWorkflow(root);
+  const ignored = path.join(root, 'vendor', 'examples');
+  mkdirSync(ignored, { recursive: true });
+  writeFileSync(path.join(ignored, 'bad.yml'), 'jobs: [');
+  writeFileSync(path.join(root, '.cachekeyrc.json'), JSON.stringify({ ignorePaths: ['vendor/examples'] }));
+
+  const result = scanTarget({ cwd: root, target: '.', ignoreRules: [] });
+
+  assert.deepEqual(result.scannedFiles, ['.github/workflows/ci.yml']);
+  assert.ok(result.findings.every((finding) => finding.file !== 'vendor/examples/bad.yml'));
+  assert.equal(result.scannedFiles.includes('vendor/examples/bad.yml'), false);
+});
+
+test('scanner still rejects malformed YAML outside ignored path boundaries', (t) => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'cachekey-ignore-boundary-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  mkdirSync(path.join(root, 'vendor', 'examples-copy'), { recursive: true });
+  writeFileSync(path.join(root, 'vendor', 'examples-copy', 'bad.yml'), 'jobs: [');
+  writeFileSync(path.join(root, '.cachekeyrc.json'), JSON.stringify({ ignorePaths: ['vendor/examples'] }));
+
+  assert.throws(
+    () => scanTarget({ cwd: root, target: '.', ignoreRules: [] }),
+    /Invalid workflow YAML:\nvendor\/examples-copy\/bad\.yml:1:/
+  );
+});
+
 test('scanner detects missing dependency path on setup cache', () => {
   const result = scanTarget({ cwd, target: 'fixtures/stale/.github/workflows', ignoreRules: [] });
   assert.ok(result.findings.some((finding) => finding.id === 'setup-cache-missing-dependency-path'));
