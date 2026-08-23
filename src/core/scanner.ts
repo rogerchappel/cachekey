@@ -3,7 +3,7 @@ import { loadConfig } from '../config/load-config.js';
 import { findLockfiles } from './lockfiles.js';
 import { evaluateRules } from './rules.js';
 import { loadWorkflowDocuments } from './workflow-parser.js';
-import { isSubpath, toPosix } from '../utils/fs.js';
+import { toPosix } from '../utils/fs.js';
 import type { ScanResult, Severity } from '../types.js';
 
 export interface ScanOptions {
@@ -37,7 +37,7 @@ export function scanTarget(options: ScanOptions): ScanResult {
   };
 
   const target = path.resolve(options.cwd, options.target);
-  const workflows = loadWorkflowDocuments(options.cwd, target);
+  const workflows = loadWorkflowDocuments(options.cwd, target, mergedConfig.ignorePaths);
   const projectRoot = projectRootForTarget(target);
   const lockfiles = findLockfiles(projectRoot, mergedConfig.lockfilePatterns)
     .map((lockfile) => toPosix(path.relative(options.cwd, path.resolve(projectRoot, lockfile))));
@@ -46,8 +46,7 @@ export function scanTarget(options: ScanOptions): ScanResult {
     workflow.steps.flatMap((step) =>
       evaluateRules({ workflow, step, config: mergedConfig, lockfiles })
     )
-  ).filter((finding) => !isSubpath(finding.file, mergedConfig.ignorePaths))
-   .sort((a, b) => severityRank[b.severity] - severityRank[a.severity] || a.file.localeCompare(b.file) || a.line - b.line);
+  ).sort((a, b) => severityRank[b.severity] - severityRank[a.severity] || a.file.localeCompare(b.file) || a.line - b.line);
 
   return {
     target: path.relative(options.cwd, target) || '.',

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { isMap, isSeq, LineCounter, parseDocument } from 'yaml';
-import { readText, toPosix, walkFiles } from '../utils/fs.js';
+import { isSubpath, readText, toPosix, walkFiles } from '../utils/fs.js';
 import type { WorkflowCacheStep, WorkflowDocument } from '../types.js';
 
 function stringValue(value: unknown): string | undefined {
@@ -61,9 +61,12 @@ function extractSteps(file: string, raw: string): WorkflowCacheStep[] {
   return steps;
 }
 
-export function loadWorkflowDocuments(root: string, targetPath: string): WorkflowDocument[] {
+export function loadWorkflowDocuments(root: string, targetPath: string, ignorePaths: string[] = []): WorkflowDocument[] {
   const absoluteTarget = path.resolve(root, targetPath);
-  const files = walkFiles(absoluteTarget, (filePath) => filePath.endsWith('.yml') || filePath.endsWith('.yaml'));
+  const files = walkFiles(absoluteTarget, (filePath) => {
+    if (!filePath.endsWith('.yml') && !filePath.endsWith('.yaml')) return false;
+    return !isSubpath(toPosix(path.relative(root, filePath)), ignorePaths);
+  });
   return files.map((filePath) => {
     const raw = readText(filePath);
     const relativeFile = toPosix(path.relative(root, filePath));
