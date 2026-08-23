@@ -89,6 +89,12 @@ Create `.cachekeyrc.json` in the repo root:
 }
 ```
 
+`ignorePaths` entries are POSIX-style paths relative to the scan working directory. An entry
+matches that exact path and everything below it on a path-segment boundary; for example,
+`vendor/examples` excludes `vendor/examples/ci.yml` but not `vendor/examples-copy/ci.yml`.
+Ignored workflow files are excluded before YAML is read or parsed and do not appear in
+`scannedFiles` or findings.
+
 Ad hoc ignores are also supported:
 
 ```bash
