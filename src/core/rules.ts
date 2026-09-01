@@ -87,6 +87,12 @@ const rules: RuleDefinition[] = [
   }
 ];
 
+const ruleIds = new Set(rules.map((rule) => rule.id));
+
+export function isRuleId(value: string): boolean {
+  return ruleIds.has(value);
+}
+
 export function evaluateRules(context: RuleContext): Finding[] {
   return rules
     .filter((rule) => !context.config.ignoreRules.includes(rule.id))

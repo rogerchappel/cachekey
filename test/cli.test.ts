@@ -16,6 +16,13 @@ test('rules command lists rules', () => {
   assert.match(result.stdout, /missing-lock-hash/);
 });
 
+test('scan reports an unknown ignore rule id', () => {
+  const result = run(['scan', '--ignore-rule', 'does-not-exist'], cwd);
+  assert.equal(result.exitCode, 1);
+  assert.equal(result.stdout, '');
+  assert.match(result.stderr, /^Unknown rule id for --ignore-rule: "does-not-exist"\./);
+});
+
 test('version command follows package metadata', () => {
   const result = run(['version'], cwd);
   assert.equal(result.exitCode, 0);
