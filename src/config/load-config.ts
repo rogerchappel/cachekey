@@ -3,6 +3,7 @@ import path from 'node:path';
 import { DEFAULT_CONFIG } from './defaults.js';
 import { readText } from '../utils/fs.js';
 import type { ScanConfig } from '../types.js';
+import { isRuleId } from '../core/rules.js';
 
 interface RawConfig {
   ignoreRules?: string[];
@@ -25,6 +26,13 @@ function parseConfig(contents: string): RawConfig {
   }
 
   const raw = value as Record<string, unknown>;
+  const unknownKey = Object.keys(raw).find(
+    (key) => !ARRAY_FIELDS.includes(key as (typeof ARRAY_FIELDS)[number])
+  );
+  if (unknownKey !== undefined) {
+    throw new Error(`Invalid .cachekeyrc.json: unknown top-level key "${unknownKey}".`);
+  }
+
   for (const field of ARRAY_FIELDS) {
     const entries = raw[field];
     if (entries === undefined) continue;
@@ -34,6 +42,14 @@ function parseConfig(contents: string): RawConfig {
     const invalidIndex = entries.findIndex((entry) => typeof entry !== 'string');
     if (invalidIndex !== -1) {
       throw new Error(`Invalid .cachekeyrc.json: ${field}[${invalidIndex}] must be a string.`);
+    }
+    if (field === 'ignoreRules') {
+      const unknownRuleIndex = entries.findIndex((entry) => !isRuleId(entry as string));
+      if (unknownRuleIndex !== -1) {
+        throw new Error(
+          `Invalid .cachekeyrc.json: ignoreRules[${unknownRuleIndex}] has unknown rule id "${entries[unknownRuleIndex]}".`
+        );
+      }
     }
   }
 
