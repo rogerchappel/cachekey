@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Audit the official split `actions/cache/restore` and `actions/cache/save`
+  actions with the same rules and source evidence as `actions/cache`.
 - Refresh the `tsx` development dependency to resolve its patched `esbuild`
   release outside the affected advisory range.
 - Scope lockfile evidence to the project containing the scanned workflows and
