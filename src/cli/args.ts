@@ -115,6 +115,8 @@ Flags:
   --fail-on         Exit 1 when findings reach severity threshold
   --ignore-rule     Skip a rule by id
 
+Scan accepts zero or one target positional. The default is .github/workflows.
+
 Safety:
   Scans workflow YAML and nearby lockfiles entirely offline.`;
 }
