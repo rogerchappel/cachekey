@@ -36,7 +36,8 @@ cachekey rules
 cachekey --version
 ```
 
-The scan target may be relative to the current directory or absolute. When it
+`cachekey scan` accepts zero or one target positional and defaults to
+`.github/workflows` when it is omitted. The target may be relative to the current directory or absolute. When it
 points inside a project's `.github` directory, CacheKey discovers lockfiles
 only from the directory containing that `.github` directory. This keeps
 lockfiles from a parent workspace or neighboring fixture from influencing the
