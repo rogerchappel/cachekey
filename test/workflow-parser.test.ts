@@ -83,10 +83,10 @@ test('parser keeps sequence-valued with: inputs as newline-joined strings', (t) 
             - ~/.npm
             - .env
           key:
-            - ${{ runner.os }}-node
-            - ${{ hashFiles('**/package-lock.json') }}
+            - \${{ runner.os }}-node
+            - \${{ hashFiles('**/package-lock.json') }}
           restore-keys:
-            - ${{ runner.os }}-
+            - \${{ runner.os }}-
 `);
 
   const [workflow] = loadWorkflowDocuments(root, workflows);
