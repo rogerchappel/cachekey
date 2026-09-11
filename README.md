@@ -61,6 +61,12 @@ Official cache actions are matched case-insensitively and require a complete
 `uses: owner/action@ref` value. Split restore/save workflows receive the same
 key, restore-key, and cached-path checks as the combined action.
 
+Cache inputs are audited regardless of the YAML value shape used to write them:
+plain strings, block scalars, and sequences of strings in `path`, `key`, and
+`restore-keys` all receive the same checks, with one sequence entry evaluated
+per line. Expressing a dangerous path list as a sequence therefore cannot bypass
+the dangerous-path, restore-key, or build-output findings.
+
 For `actions/setup-node`, `cache-dependency-path` identifies the lockfile or
 dependency manifest used to calculate the cache key. It is not the directory
 stored in the package-manager cache.
