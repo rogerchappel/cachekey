@@ -146,6 +146,15 @@ npm run release:check
 bash scripts/validate.sh
 ```
 
+## Install
+
+After the first npm release, install the CLI globally or run it directly:
+
+```bash
+npm install --global cachekey
+npx cachekey --help
+```
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -168,9 +177,19 @@ npm test
 npm run build
 npm run smoke
 npm run package:smoke
+npm run release:contract
 npm run release:check
 ```
 
 `npm run package:smoke` builds the CLI, verifies the published `cachekey` bin
 target, confirms docs and example config are present in the package allowlist,
 and prints the dry-run tarball contents for review.
+
+Version tags matching `v*.*.*` run the same checks, pack one tarball, publish
+that exact tarball to npm with provenance, and only then create the GitHub
+release with the tarball attached. Before the first release, configure
+`rogerchappel/cachekey` and the `release.yml` workflow as a trusted publisher
+for the `cachekey` package on npm. Trusted publishing uses GitHub OIDC, so the
+workflow needs no long-lived npm token.
+The workflow pins npm 11.5.1, the minimum CLI version with trusted publishing
+support.
