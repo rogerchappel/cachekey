@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Audit cache `with:` inputs (`path`, `key`, `restore-keys`) written as YAML
+  sequences with the same rules as the block-scalar form, so list-shaped
+  dangerous paths can no longer pass the documented CI gate.
 - Audit the official split `actions/cache/restore` and `actions/cache/save`
   actions with the same rules and source evidence as `actions/cache`.
 - Refresh the `tsx` development dependency to resolve its patched `esbuild`
