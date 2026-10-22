@@ -130,6 +130,8 @@ npm test
 npm run check
 npm run build
 npm run smoke
+npm run package:smoke
+npm run release:check
 bash scripts/validate.sh
 ```
 
@@ -157,3 +159,7 @@ npm run smoke
 npm run package:smoke
 npm run release:check
 ```
+
+`npm run package:smoke` builds the CLI, verifies the published `cachekey` bin
+target, confirms docs and example config are present in the package allowlist,
+and prints the dry-run tarball contents for review.
