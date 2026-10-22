@@ -106,6 +106,16 @@ node dist/cli.js scan fixtures/risky/.github/workflows --out tmp/risky-report.md
 node dist/cli.js scan fixtures/safe/.github/workflows --format json --out tmp/safe-report.json
 ```
 
+For a repeatable walkthrough that creates both reports and verifies them:
+
+```bash
+bash demo/run-workflow-cache-demo.sh
+```
+
+The demo writes reports under `tmp/workflow-cache-demo/`. A short video outline
+and social hooks live in
+[`docs/promo/workflow-cache-demo-brief.md`](docs/promo/workflow-cache-demo-brief.md).
+
 ## CI usage
 
 ```bash
