@@ -56,3 +56,20 @@ test('scan fails on malformed YAML even beside a valid workflow', (t) => {
   assert.equal(result.stdout, '');
   assert.match(result.stderr, /Invalid workflow YAML:\n\.github\/workflows\/broken\.yaml:3:\d+:/);
 });
+
+test('scan gates sequence-shaped cache inputs on the documented high threshold', () => {
+  const result = run(['scan', 'fixtures/sequence-values/.github/workflows', '--format', 'json', '--fail-on', 'high'], cwd);
+  assert.equal(result.exitCode, 1);
+  const report = JSON.parse(result.stdout) as { findings: Array<{ id: string }> };
+  assert.deepEqual(
+    report.findings.map((finding) => finding.id).sort(),
+    [
+      'broad-restore-key',
+      'broad-restore-key',
+      'dangerous-cache-path',
+      'dangerous-cache-path',
+      'mutable-build-output',
+      'mutable-build-output'
+    ]
+  );
+});

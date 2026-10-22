@@ -132,3 +132,28 @@ test('scanner handles absolute external targets without borrowing cwd lockfiles'
   assert.deepEqual(withRelevantLockfile.detectedLockfiles, [path.posix.join('..', path.basename(external), 'yarn.lock')]);
   assert.ok(withRelevantLockfile.findings.some((finding) => finding.id === 'missing-lock-hash'));
 });
+
+test('scanner reports identical findings for sequence and block-scalar cache inputs', () => {
+  const result = scanTarget({ cwd, target: 'fixtures/sequence-values/.github/workflows', ignoreRules: [] });
+  assert.deepEqual(result.scannedFiles, [
+    'fixtures/sequence-values/.github/workflows/block-scalar.yml',
+    'fixtures/sequence-values/.github/workflows/sequence.yml'
+  ]);
+
+  const findingsByFile = new Map<string, Array<{ id: string; severity: string; message: string; line: number }>>();
+  for (const file of result.scannedFiles) {
+    findingsByFile.set(
+      file,
+      result.findings
+        .filter((finding) => finding.file === file)
+        .map(({ id, severity, message, line }) => ({ id, severity, message, line }))
+        .sort((a, b) => a.id.localeCompare(b.id))
+    );
+  }
+  const [blockScalar, sequence] = result.scannedFiles.map((file) => findingsByFile.get(file));
+
+  assert.deepEqual(sequence?.map(({ id }) => id), ['broad-restore-key', 'dangerous-cache-path', 'mutable-build-output']);
+  assert.deepEqual(sequence, blockScalar, 'sequence-shaped inputs must report exactly what the block-scalar form reports');
+  assert.equal(result.findings.some((finding) => finding.id === 'missing-lock-hash'), false, 'both shapes keep the valid hashFiles key');
+  assert.equal(result.findings.some((finding) => finding.message.includes('`.env`')), true);
+});
