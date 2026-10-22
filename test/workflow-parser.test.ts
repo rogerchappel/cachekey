@@ -30,6 +30,32 @@ jobs:
   assert.deepEqual(workflow.steps.map((step) => step.reference.line), [5, 6, 10, 13]);
 });
 
+test('parser recognizes official split cache actions with valid references only', (t) => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'cachekey-parser-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const workflows = path.join(root, '.github', 'workflows');
+  mkdirSync(workflows, { recursive: true });
+  writeFileSync(path.join(workflows, 'split.yml'), `jobs:
+  test:
+    steps:
+      - uses: ACTIONS/CACHE/RESTORE@v4
+      - uses: actions/cache/save@refs/heads/main
+      - uses: actions/cache/restore@
+      - uses: actions/cache/save
+      - uses: actions/cache/save@v4 extra
+`);
+
+  const [workflow] = loadWorkflowDocuments(root, workflows);
+
+  assert.deepEqual(
+    workflow.steps.map((step) => ({ kind: step.kind, uses: step.uses, line: step.reference.line })),
+    [
+      { kind: 'actions-cache', uses: 'ACTIONS/CACHE/RESTORE@v4', line: 4 },
+      { kind: 'actions-cache', uses: 'actions/cache/save@refs/heads/main', line: 5 }
+    ]
+  );
+});
+
 test('parser rejects malformed YAML with its workflow path and location', (t) => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'cachekey-parser-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));

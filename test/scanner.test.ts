@@ -22,6 +22,23 @@ test('scanner accepts safe workflow', () => {
   assert.equal(shouldFail(result.findings, 'high'), false);
 });
 
+test('scanner audits split restore and save cache actions', () => {
+  const risky = scanTarget({ cwd, target: 'fixtures/split-risky/.github/workflows', ignoreRules: [] });
+  assert.deepEqual(
+    risky.findings.map(({ id, file, line }) => ({ id, file, line })),
+    [
+      {
+        id: 'missing-lock-hash',
+        file: 'fixtures/split-risky/.github/workflows/ci.yml',
+        line: 7
+      }
+    ]
+  );
+
+  const safe = scanTarget({ cwd, target: 'fixtures/split-safe/.github/workflows', ignoreRules: [] });
+  assert.deepEqual(safe.findings, []);
+});
+
 test('scanner skips ignored workflow paths before parsing', (t) => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'cachekey-ignore-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));

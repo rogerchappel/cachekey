@@ -8,10 +8,11 @@ function stringValue(value: unknown): string | undefined {
 }
 
 function actionIdentity(uses: string): string | undefined {
-  const separator = uses.indexOf('@');
-  if (separator <= 0 || separator === uses.length - 1) return undefined;
-  return uses.slice(0, separator).toLowerCase();
+  const match = /^([^@\s]+)@([^@\s]+)$/.exec(uses);
+  return match?.[1]?.toLowerCase();
 }
+
+const CACHE_ACTION_IDENTITIES = new Set(['actions/cache', 'actions/cache/restore', 'actions/cache/save']);
 
 function extractSteps(file: string, raw: string): WorkflowCacheStep[] {
   const lineCounter = new LineCounter();
@@ -48,7 +49,7 @@ function extractSteps(file: string, raw: string): WorkflowCacheStep[] {
       const line = usesNode?.range ? lineCounter.linePos(usesNode.range[0]).line : 1;
       const identity = uses ? actionIdentity(uses) : undefined;
 
-      if (uses && identity === 'actions/cache') {
+      if (uses && identity && CACHE_ACTION_IDENTITIES.has(identity)) {
         steps.push({ kind: 'actions-cache', uses, with: withRecord, reference: { file, line, snippet } });
       }
 

@@ -1,0 +1,10 @@
+name: split risky
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: node-${{ runner.os }}

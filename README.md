@@ -49,11 +49,16 @@ other workflows in the same target are valid.
 
 ## What it checks in v0.1
 
-- missing `hashFiles(...)` in explicit `actions/cache` keys when lockfiles exist
+- missing `hashFiles(...)` in explicit `actions/cache`, `actions/cache/restore`,
+  and `actions/cache/save` keys when lockfiles exist
 - overly broad `restore-keys`
 - dangerous `actions/cache` payload paths like `.env`, `.npmrc`, `.ssh`, `secrets`
 - mutable build output caches like `dist/`, `build/`, `coverage/`
 - `actions/setup-node` cache usage missing a `cache-dependency-path` manifest
+
+Official cache actions are matched case-insensitively and require a complete
+`uses: owner/action@ref` value. Split restore/save workflows receive the same
+key, restore-key, and cached-path checks as the combined action.
 
 For `actions/setup-node`, `cache-dependency-path` identifies the lockfile or
 dependency manifest used to calculate the cache key. It is not the directory
