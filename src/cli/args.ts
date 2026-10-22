@@ -44,11 +44,16 @@ export function parseArgs(argv: string[]): ParsedArgs {
   let out: string | undefined;
   let failOn: Severity | undefined;
   const ignoreRules: string[] = [];
+  let targetProvided = false;
 
   while (args.length > 0) {
     const current = args.shift()!;
-    if (!current.startsWith('--') && command === 'scan' && target === '.github/workflows') {
+    if (!current.startsWith('--') && command === 'scan') {
+      if (targetProvided) {
+        throw new Error('cachekey scan accepts at most one target positional.');
+      }
       target = current;
+      targetProvided = true;
       continue;
     }
 
@@ -109,6 +114,8 @@ Flags:
   --out             Write report to file
   --fail-on         Exit 1 when findings reach severity threshold
   --ignore-rule     Skip a rule by id
+
+Scan accepts zero or one target positional. The default is .github/workflows.
 
 Safety:
   Scans workflow YAML and nearby lockfiles entirely offline.`;
