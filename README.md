@@ -117,6 +117,9 @@ node dist/cli.js scan fixtures/safe/.github/workflows --format json --out tmp/sa
 node dist/cli.js --version
 ```
 
+The risky scan writes its findings in Markdown, while the safe scan writes JSON
+with an empty `findings` array.
+
 For a repeatable walkthrough that creates both reports and verifies them:
 
 ```bash
