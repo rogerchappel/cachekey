@@ -15,3 +15,9 @@ test('help text mentions commands', () => {
   assert.match(helpText(), /cachekey scan/);
   assert.match(helpText(), /cachekey rules/);
 });
+
+test('parse rejects an unknown ignore rule id', () => {
+  assert.throws(() => parseArgs(['scan', '--ignore-rule', 'does-not-exist']), {
+    message: 'Unknown rule id for --ignore-rule: "does-not-exist".'
+  });
+});

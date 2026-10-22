@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
 import type { Severity } from '../types.js';
+import { isRuleId } from '../core/rules.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../../package.json') as { version: string };
@@ -71,6 +72,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
       case '--ignore-rule': {
         const value = args.shift();
         if (!value) throw new Error('Expected value after --ignore-rule');
+        if (!isRuleId(value)) throw new Error(`Unknown rule id for --ignore-rule: "${value}".`);
         ignoreRules.push(value);
         break;
       }

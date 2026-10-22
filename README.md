@@ -89,10 +89,12 @@ Create `.cachekeyrc.json` in the repo root:
 }
 ```
 
-The configuration file must contain a JSON object. Each supported field is optional, but when
-present it must be an array containing only strings. CacheKey reports malformed JSON, invalid
-root values, field types, and array-member indexes as `.cachekeyrc.json` configuration errors
-before scanning begins. Omitted fields retain their defaults.
+The configuration file must contain a JSON object. The only accepted top-level keys are
+`ignoreRules`, `lockfilePatterns`, and `ignorePaths`. Each is optional, but when present it must
+be an array containing only strings. Every `ignoreRules` value must be a rule ID printed by
+`cachekey rules`; the same IDs are accepted by `--ignore-rule`. CacheKey reports unknown keys
+and rule IDs, malformed JSON, invalid root values, field types, and array-member indexes as
+configuration errors before scanning begins. Omitted fields retain their defaults.
 
 `ignorePaths` entries are POSIX-style paths relative to the scan working directory. An entry
 matches that exact path and everything below it on a path-segment boundary; for example,

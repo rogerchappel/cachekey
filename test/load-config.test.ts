@@ -54,6 +54,20 @@ test('config merges valid fields with defaults', (t) => {
   });
 });
 
+test('config rejects an unknown top-level key', (t) => {
+  const root = withConfig(t, JSON.stringify({ ignoreRule: ['broad-restore-key'] }));
+  assert.throws(() => loadConfig(root), {
+    message: 'Invalid .cachekeyrc.json: unknown top-level key "ignoreRule".'
+  });
+});
+
+test('config rejects an unknown ignoreRules id with its index', (t) => {
+  const root = withConfig(t, JSON.stringify({ ignoreRules: ['broad-restore-key', 'does-not-exist'] }));
+  assert.throws(() => loadConfig(root), {
+    message: 'Invalid .cachekeyrc.json: ignoreRules[1] has unknown rule id "does-not-exist".'
+  });
+});
+
 test('config uses defaults when the file is absent', (t) => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'cachekey-config-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
