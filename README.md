@@ -89,6 +89,11 @@ Create `.cachekeyrc.json` in the repo root:
 }
 ```
 
+The configuration file must contain a JSON object. Each supported field is optional, but when
+present it must be an array containing only strings. CacheKey reports malformed JSON, invalid
+root values, field types, and array-member indexes as `.cachekeyrc.json` configuration errors
+before scanning begins. Omitted fields retain their defaults.
+
 `ignorePaths` entries are POSIX-style paths relative to the scan working directory. An entry
 matches that exact path and everything below it on a path-segment boundary; for example,
 `vendor/examples` excludes `vendor/examples/ci.yml` but not `vendor/examples-copy/ci.yml`.
