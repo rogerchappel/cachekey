@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { parseDocument } from 'yaml';
+import { isMap, isSeq, LineCounter, parseDocument } from 'yaml';
 import { readText, toPosix, walkFiles } from '../utils/fs.js';
 import type { WorkflowCacheStep, WorkflowDocument } from '../types.js';
 
@@ -13,35 +13,31 @@ function actionIdentity(uses: string): string | undefined {
   return uses.slice(0, separator).toLowerCase();
 }
 
-function getLine(raw: string, needle: string): number {
-  const index = raw.indexOf(needle);
-  if (index === -1) return 1;
-  return raw.slice(0, index).split('\n').length;
-}
-
 function extractSteps(file: string, raw: string): WorkflowCacheStep[] {
-  const doc = parseDocument(raw, { prettyErrors: false });
-  const root = doc.toJSON() as Record<string, unknown> | null;
-  if (!root || typeof root !== 'object') return [];
-  const jobs = root.jobs;
-  if (!jobs || typeof jobs !== 'object') return [];
+  const lineCounter = new LineCounter();
+  const doc = parseDocument(raw, { lineCounter, prettyErrors: false });
+  if (!isMap(doc.contents)) return [];
+  const jobs = doc.contents.get('jobs', true);
+  if (!isMap(jobs)) return [];
 
   const steps: WorkflowCacheStep[] = [];
-  for (const job of Object.values(jobs as Record<string, unknown>)) {
-    if (!job || typeof job !== 'object') continue;
-    const stepList = (job as Record<string, unknown>).steps;
-    if (!Array.isArray(stepList)) continue;
+  for (const jobPair of jobs.items) {
+    const job = jobPair.value;
+    if (!isMap(job)) continue;
+    const stepList = job.get('steps', true);
+    if (!isSeq(stepList)) continue;
 
-    for (const step of stepList) {
-      if (!step || typeof step !== 'object') continue;
-      const stepRecord = step as Record<string, unknown>;
+    for (const step of stepList.items) {
+      if (!isMap(step)) continue;
+      const stepRecord = step.toJSON() as Record<string, unknown>;
       const uses = stringValue(stepRecord.uses);
       const withRecord = Object.fromEntries(
         Object.entries(stepRecord.with && typeof stepRecord.with === 'object' ? (stepRecord.with as Record<string, unknown>) : {})
           .filter(([, value]) => typeof value === 'string') as Array<[string, string]>
       );
       const snippet = uses ?? JSON.stringify(withRecord);
-      const line = getLine(raw, uses ?? Object.values(withRecord)[0] ?? '-');
+      const usesNode = step.get('uses', true);
+      const line = usesNode?.range ? lineCounter.linePos(usesNode.range[0]).line : 1;
       const identity = uses ? actionIdentity(uses) : undefined;
 
       if (uses && identity === 'actions/cache') {
