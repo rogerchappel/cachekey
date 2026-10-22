@@ -57,7 +57,10 @@ if (metadataPath) {
     throw new Error(`packed identity ${packed?.name}@${packed?.version} does not match ${pkg.name}@${pkg.version}`);
   }
   if (!packed.filename?.endsWith('.tgz')) throw new Error('npm pack did not report a tarball');
-  await access(new URL(packed.filename, root));
+  const artifactPath = metadataPath
+    ? new URL(packed.filename, new URL('.', `file://${metadataPath}`))
+    : new URL(packed.filename, root);
+  await access(artifactPath);
   console.log(`verified packed artifact ${packed.filename} as ${pkg.name}@${pkg.version}`);
 }
 

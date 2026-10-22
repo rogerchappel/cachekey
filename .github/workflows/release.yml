@@ -40,12 +40,12 @@ jobs:
       - name: Run release checks
         run: npm run release:check
       - name: Build package
-        run: npm pack --json > npm-pack.json
+        run: npm pack --json --pack-destination "${RUNNER_TEMP}" > "${RUNNER_TEMP}/npm-pack.json"
       - name: Verify release contract
-        run: node scripts/verify-release.mjs npm-pack.json
+        run: node scripts/verify-release.mjs "${RUNNER_TEMP}/npm-pack.json"
       - name: Publish package to npm
         run: |
-          tarball=$(node -p "require('./npm-pack.json')[0].filename")
+          tarball=$(node -p "require(process.env.RUNNER_TEMP + '/npm-pack.json')[0].filename")
           npm publish "$tarball" --provenance --access public
       - name: Generate release notes
         run: node /tmp/releasebox/bin/releasebox.js notes . > RELEASE_NOTES.md
@@ -53,5 +53,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tarball=$(node -p "require('./npm-pack.json')[0].filename")
+          tarball=$(node -p "require(process.env.RUNNER_TEMP + '/npm-pack.json')[0].filename")
           gh release create "${GITHUB_REF_NAME}" --notes-file RELEASE_NOTES.md "$tarball"

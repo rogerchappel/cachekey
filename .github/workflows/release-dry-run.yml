@@ -43,9 +43,9 @@ jobs:
       - name: Run release checks
         run: npm run release:check
       - name: Pack release artifact
-        run: npm pack --json > npm-pack.json
+        run: npm pack --json --pack-destination "${RUNNER_TEMP}" > "${RUNNER_TEMP}/npm-pack.json"
       - name: Verify release contract
-        run: node scripts/verify-release.mjs npm-pack.json
+        run: node scripts/verify-release.mjs "${RUNNER_TEMP}/npm-pack.json"
       - name: Release notes preview
         run: |
           node /tmp/releasebox/bin/releasebox.js notes . > release-notes-preview.md
