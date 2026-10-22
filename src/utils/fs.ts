@@ -38,6 +38,9 @@ export function toPosix(filePath: string): string {
 }
 
 export function isSubpath(filePath: string, patterns: string[]): boolean {
-  const posix = toPosix(filePath);
-  return patterns.some((pattern) => posix.includes(pattern));
+  const posix = toPosix(filePath).replace(/^\.\//, '');
+  return patterns.some((pattern) => {
+    const normalized = toPosix(pattern).replace(/^\.\//, '').replace(/\/+$/, '');
+    return normalized.length > 0 && (posix === normalized || posix.startsWith(`${normalized}/`));
+  });
 }
