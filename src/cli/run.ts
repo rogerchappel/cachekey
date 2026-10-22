@@ -14,6 +14,10 @@ export function run(argv: string[], cwd = process.cwd()): { exitCode: number; st
       return { exitCode: 0, stdout: helpText(), stderr: '' };
     }
 
+    if (parsed.command === 'version') {
+      return { exitCode: 0, stdout: '0.1.0\n', stderr: '' };
+    }
+
     if (parsed.command === 'rules') {
       const lines = listRules().map((rule) => `${rule.id}\t${rule.severity}\t${rule.title}`);
       return { exitCode: 0, stdout: `${lines.join('\n')}\n`, stderr: '' };
