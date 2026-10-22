@@ -7,6 +7,26 @@ function stringValue(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined;
 }
 
+// actions/cache accepts path, key, and restore-keys as either a block scalar
+// or a YAML sequence of the same lines. Keep both shapes: sequences collapse
+// into newline-joined strings so the rules see one line per entry, and apply
+// the same string-only exclusion around list entries as around scalars.
+function normalizeWith(withValue: unknown): Record<string, string> {
+  if (!withValue || typeof withValue !== 'object') return {};
+  const normalized: Record<string, string> = {};
+  for (const [name, value] of Object.entries(withValue as Record<string, unknown>)) {
+    if (typeof value === 'string') {
+      normalized[name] = value;
+      continue;
+    }
+    if (Array.isArray(value)) {
+      const entries = value.filter((entry): entry is string => typeof entry === 'string');
+      if (entries.length > 0) normalized[name] = entries.join('\n');
+    }
+  }
+  return normalized;
+}
+
 function actionIdentity(uses: string): string | undefined {
   const match = /^([^@\s]+)@([^@\s]+)$/.exec(uses);
   return match?.[1]?.toLowerCase();
@@ -40,10 +60,7 @@ function extractSteps(file: string, raw: string): WorkflowCacheStep[] {
       if (!isMap(step)) continue;
       const stepRecord = step.toJSON() as Record<string, unknown>;
       const uses = stringValue(stepRecord.uses);
-      const withRecord = Object.fromEntries(
-        Object.entries(stepRecord.with && typeof stepRecord.with === 'object' ? (stepRecord.with as Record<string, unknown>) : {})
-          .filter(([, value]) => typeof value === 'string') as Array<[string, string]>
-      );
+      const withRecord = normalizeWith(stepRecord.with);
       const snippet = uses ?? JSON.stringify(withRecord);
       const usesNode = step.get('uses', true);
       const line = usesNode?.range ? lineCounter.linePos(usesNode.range[0]).line : 1;
