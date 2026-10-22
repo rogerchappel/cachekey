@@ -14,7 +14,7 @@ node dist/cli.js scan fixtures/risky/.github/workflows --out "$out_dir/risky.md"
 node dist/cli.js scan fixtures/safe/.github/workflows --format json --out "$out_dir/safe.json"
 
 grep -q 'CacheKey Report' "$out_dir/risky.md"
-grep -q '"findings"' "$out_dir/safe.json"
+node -e 'const report = require(process.argv[1]); if (!Array.isArray(report.findings) || report.findings.length !== 0) process.exit(1)' "$out_dir/safe.json"
 
 printf 'Risky workflow report: %s\n' "$out_dir/risky.md"
 printf 'Safe workflow JSON: %s\n' "$out_dir/safe.json"
