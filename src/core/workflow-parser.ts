@@ -16,6 +16,14 @@ function actionIdentity(uses: string): string | undefined {
 function extractSteps(file: string, raw: string): WorkflowCacheStep[] {
   const lineCounter = new LineCounter();
   const doc = parseDocument(raw, { lineCounter, prettyErrors: false });
+  if (doc.errors.length > 0) {
+    const details = doc.errors.map((error) => {
+      const position = error.linePos?.[0] ?? lineCounter.linePos(error.pos[0]);
+      const location = position ? `:${position.line}:${position.col}` : '';
+      return `${file}${location}: ${error.message}`;
+    });
+    throw new Error(`Invalid workflow YAML:\n${details.join('\n')}`);
+  }
   if (!isMap(doc.contents)) return [];
   const jobs = doc.contents.get('jobs', true);
   if (!isMap(jobs)) return [];
